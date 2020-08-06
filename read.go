@@ -9,8 +9,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/Rhymen/go-whatsapp/binary"
-	"github.com/Rhymen/go-whatsapp/crypto/cbc"
+	"github.com/dinnos/go-whatsapp/binary"
+	"github.com/dinnos/go-whatsapp/crypto/cbc"
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 )
