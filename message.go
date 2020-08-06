@@ -33,28 +33,28 @@ func (wac *Conn) Send(msg interface{}) (string, error) {
 		msgProto = getTextProto(m)
 	case ImageMessage:
 		var err error
-		m.url, m.mediaKey, m.fileEncSha256, m.fileSha256, m.fileLength, err = wac.Upload(m.Content, MediaImage)
+		m.Url, m.mediaKey, m.fileEncSha256, m.fileSha256, m.fileLength, err = wac.Upload(m.Content, MediaImage)
 		if err != nil {
 			return "ERROR", fmt.Errorf("image upload failed: %v", err)
 		}
 		msgProto = getImageProto(m)
 	case VideoMessage:
 		var err error
-		m.url, m.mediaKey, m.fileEncSha256, m.fileSha256, m.fileLength, err = wac.Upload(m.Content, MediaVideo)
+		m.Url, m.mediaKey, m.fileEncSha256, m.fileSha256, m.fileLength, err = wac.Upload(m.Content, MediaVideo)
 		if err != nil {
 			return "ERROR", fmt.Errorf("video upload failed: %v", err)
 		}
 		msgProto = getVideoProto(m)
 	case DocumentMessage:
 		var err error
-		m.url, m.mediaKey, m.fileEncSha256, m.fileSha256, m.fileLength, err = wac.Upload(m.Content, MediaDocument)
+		m.Url, m.mediaKey, m.fileEncSha256, m.fileSha256, m.fileLength, err = wac.Upload(m.Content, MediaDocument)
 		if err != nil {
 			return "ERROR", fmt.Errorf("document upload failed: %v", err)
 		}
 		msgProto = getDocumentProto(m)
 	case AudioMessage:
 		var err error
-		m.url, m.mediaKey, m.fileEncSha256, m.fileSha256, m.fileLength, err = wac.Upload(m.Content, MediaAudio)
+		m.Url, m.mediaKey, m.fileEncSha256, m.fileSha256, m.fileLength, err = wac.Upload(m.Content, MediaAudio)
 		if err != nil {
 			return "ERROR", fmt.Errorf("audio upload failed: %v", err)
 		}
@@ -262,7 +262,7 @@ type ImageMessage struct {
 	Thumbnail     []byte
 	Type          string
 	Content       io.Reader
-	url           string
+	Url           string
 	mediaKey      []byte
 	fileEncSha256 []byte
 	fileSha256    []byte
@@ -277,7 +277,7 @@ func getImageMessage(msg *proto.WebMessageInfo) ImageMessage {
 		Info:          getMessageInfo(msg),
 		Caption:       image.GetCaption(),
 		Thumbnail:     image.GetJpegThumbnail(),
-		url:           image.GetUrl(),
+		Url:           image.GetUrl(),
 		mediaKey:      image.GetMediaKey(),
 		Type:          image.GetMimetype(),
 		fileEncSha256: image.GetFileEncSha256(),
@@ -297,7 +297,7 @@ func getImageProto(msg ImageMessage) *proto.WebMessageInfo {
 		ImageMessage: &proto.ImageMessage{
 			Caption:       &msg.Caption,
 			JpegThumbnail: msg.Thumbnail,
-			Url:           &msg.url,
+			Url:           &msg.Url,
 			MediaKey:      msg.mediaKey,
 			Mimetype:      &msg.Type,
 			FileEncSha256: msg.fileEncSha256,
@@ -313,7 +313,7 @@ func getImageProto(msg ImageMessage) *proto.WebMessageInfo {
 Download is the function to retrieve media data. The media gets downloaded, validated and returned.
 */
 func (m *ImageMessage) Download() ([]byte, error) {
-	return Download(m.url, m.mediaKey, MediaImage, int(m.fileLength))
+	return Download(m.Url, m.mediaKey, MediaImage, int(m.fileLength))
 }
 
 /*
@@ -328,7 +328,7 @@ type VideoMessage struct {
 	Type          string
 	Content       io.Reader
 	GifPlayback   bool
-	url           string
+	Url           string
 	mediaKey      []byte
 	fileEncSha256 []byte
 	fileSha256    []byte
@@ -344,7 +344,7 @@ func getVideoMessage(msg *proto.WebMessageInfo) VideoMessage {
 		Caption:       vid.GetCaption(),
 		Thumbnail:     vid.GetJpegThumbnail(),
 		GifPlayback:   vid.GetGifPlayback(),
-		url:           vid.GetUrl(),
+		Url:           vid.GetUrl(),
 		mediaKey:      vid.GetMediaKey(),
 		Length:        vid.GetSeconds(),
 		Type:          vid.GetMimetype(),
@@ -365,7 +365,7 @@ func getVideoProto(msg VideoMessage) *proto.WebMessageInfo {
 		VideoMessage: &proto.VideoMessage{
 			Caption:       &msg.Caption,
 			JpegThumbnail: msg.Thumbnail,
-			Url:           &msg.url,
+			Url:           &msg.Url,
 			GifPlayback:   &msg.GifPlayback,
 			MediaKey:      msg.mediaKey,
 			Seconds:       &msg.Length,
@@ -383,7 +383,7 @@ func getVideoProto(msg VideoMessage) *proto.WebMessageInfo {
 Download is the function to retrieve media data. The media gets downloaded, validated and returned.
 */
 func (m *VideoMessage) Download() ([]byte, error) {
-	return Download(m.url, m.mediaKey, MediaVideo, int(m.fileLength))
+	return Download(m.Url, m.mediaKey, MediaVideo, int(m.fileLength))
 }
 
 /*
@@ -396,7 +396,7 @@ type AudioMessage struct {
 	Type          string
 	Content       io.Reader
 	Ptt           bool
-	url           string
+	Url           string
 	mediaKey      []byte
 	fileEncSha256 []byte
 	fileSha256    []byte
@@ -409,7 +409,7 @@ func getAudioMessage(msg *proto.WebMessageInfo) AudioMessage {
 
 	audioMessage := AudioMessage{
 		Info:          getMessageInfo(msg),
-		url:           aud.GetUrl(),
+		Url:           aud.GetUrl(),
 		mediaKey:      aud.GetMediaKey(),
 		Length:        aud.GetSeconds(),
 		Type:          aud.GetMimetype(),
@@ -427,7 +427,7 @@ func getAudioProto(msg AudioMessage) *proto.WebMessageInfo {
 	contextInfo := getContextInfoProto(&msg.ContextInfo)
 	p.Message = &proto.Message{
 		AudioMessage: &proto.AudioMessage{
-			Url:           &msg.url,
+			Url:           &msg.Url,
 			MediaKey:      msg.mediaKey,
 			Seconds:       &msg.Length,
 			FileEncSha256: msg.fileEncSha256,
@@ -445,7 +445,7 @@ func getAudioProto(msg AudioMessage) *proto.WebMessageInfo {
 Download is the function to retrieve media data. The media gets downloaded, validated and returned.
 */
 func (m *AudioMessage) Download() ([]byte, error) {
-	return Download(m.url, m.mediaKey, MediaAudio, int(m.fileLength))
+	return Download(m.Url, m.mediaKey, MediaAudio, int(m.fileLength))
 }
 
 /*
@@ -460,7 +460,7 @@ type DocumentMessage struct {
 	FileName      string
 	Thumbnail     []byte
 	Content       io.Reader
-	url           string
+	Url           string
 	mediaKey      []byte
 	fileEncSha256 []byte
 	fileSha256    []byte
@@ -478,7 +478,7 @@ func getDocumentMessage(msg *proto.WebMessageInfo) DocumentMessage {
 		Type:          doc.GetMimetype(),
 		FileName:      doc.GetFileName(),
 		Thumbnail:     doc.GetJpegThumbnail(),
-		url:           doc.GetUrl(),
+		Url:           doc.GetUrl(),
 		mediaKey:      doc.GetMediaKey(),
 		fileEncSha256: doc.GetFileEncSha256(),
 		fileSha256:    doc.GetFileSha256(),
@@ -495,7 +495,7 @@ func getDocumentProto(msg DocumentMessage) *proto.WebMessageInfo {
 	p.Message = &proto.Message{
 		DocumentMessage: &proto.DocumentMessage{
 			JpegThumbnail: msg.Thumbnail,
-			Url:           &msg.url,
+			Url:           &msg.Url,
 			MediaKey:      msg.mediaKey,
 			FileEncSha256: msg.fileEncSha256,
 			FileSha256:    msg.fileSha256,
@@ -513,7 +513,7 @@ func getDocumentProto(msg DocumentMessage) *proto.WebMessageInfo {
 Download is the function to retrieve media data. The media gets downloaded, validated and returned.
 */
 func (m *DocumentMessage) Download() ([]byte, error) {
-	return Download(m.url, m.mediaKey, MediaDocument, int(m.fileLength))
+	return Download(m.Url, m.mediaKey, MediaDocument, int(m.fileLength))
 }
 
 /*
@@ -627,7 +627,7 @@ type StickerMessage struct {
 
 	Type          string
 	Content       io.Reader
-	url           string
+	Url           string
 	mediaKey      []byte
 	fileEncSha256 []byte
 	fileSha256    []byte
@@ -641,7 +641,7 @@ func getStickerMessage(msg *proto.WebMessageInfo) StickerMessage {
 
 	stickerMessage := StickerMessage{
 		Info:          getMessageInfo(msg),
-		url:           sticker.GetUrl(),
+		Url:           sticker.GetUrl(),
 		mediaKey:      sticker.GetMediaKey(),
 		Type:          sticker.GetMimetype(),
 		fileEncSha256: sticker.GetFileEncSha256(),
@@ -658,7 +658,7 @@ Download is the function to retrieve Sticker media data. The media gets download
 */
 
 func (m *StickerMessage) Download() ([]byte, error) {
-	return Download(m.url, m.mediaKey, MediaImage, int(m.fileLength))
+	return Download(m.Url, m.mediaKey, MediaImage, int(m.fileLength))
 }
 
 /*
